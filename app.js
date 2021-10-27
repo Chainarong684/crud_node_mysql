@@ -200,31 +200,3 @@ app.delete("/book/:id", (req, res) => {
     console.log(error);
   }
 });
-
-// app.delete("/book", (req, res) => {
-//   let id = req.body.id;
-
-//   if (!id) {
-//     return res.status(400).send({
-//       status: "bad",
-//       message: "Please insert book id to delete",
-//     });
-//   } else {
-//     dbCon.query("DELETE FROM books WHERE id = ?", id, (error, result) => {
-//       if (error) throw error;
-
-//       let message = "";
-//       if (result.affectedRows === 0) {
-//         message = `Book id ${id} not found please try agian`;
-//       } else {
-//         message = "Successfully deleted";
-//       }
-
-//       return res.send({
-//         status: "good",
-//         message,
-//         result,
-//       });
-//     });
-//   }
-// });
