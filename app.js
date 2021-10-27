@@ -41,19 +41,21 @@ app.get("/book", (req, res) => {
         console.log(err);
         return res.status(500).send({
           status: "bad",
-          messege: err.sqlMessage,
+          message: err.sqlMessage,
         });
       }
-      let messege = "";
+      let { message, status } = "";
       if (data.length === 0) {
-        messege = "Empty book data";
+        status = "try";
+        message = "Empty book data";
       } else {
-        messege = "Successfuly to get all books";
+        status = "good";
+        message = "Successfuly to get all books";
       }
 
       return res.status(200).send({
-        status: "good",
-        messege,
+        status,
+        message,
         data,
       });
     });
@@ -73,16 +75,18 @@ app.get("/book/:id", (req, res) => {
           err,
         });
       }
-      let messege = "";
+      let { message, status } = "";
       if (data.length === 0) {
-        messege = "Book has not found";
+        status = "try";
+        message = "Book has not found";
       } else {
-        messege = `Successfuly find book id ${id}`;
+        status = "good";
+        message = `Successfuly find book id ${id}`;
       }
 
       return res.status(200).send({
-        status: "good",
-        messege,
+        status,
+        message,
         data,
       });
     });
@@ -97,20 +101,22 @@ app.post("/book/add", (req, res) => {
     if (!name || !author) {
       return res.status(400).send({
         status: "bad",
-        messege: "Please fill Name and Author",
+        message: "Please fill Name and Author",
       });
     } else {
       db.query("INSERT INTO books (name, author) VALUES (?, ?)", [name, author], (err, data) => {
-        let messege = "";
+        let { message, status } = "";
         if (err) {
-          messege = err;
+          status = "try";
+          message = err;
         } else {
-          messege = "Successfuly to add a new book";
+          status = "good";
+          message = "Successfuly to add a new book";
         }
 
         return res.status(200).send({
-          status: "good",
-          messege,
+          status,
+          message,
           data,
         });
       });
@@ -125,12 +131,12 @@ app.put("/book/:id", (req, res) => {
   const { name, author } = req.body;
   let query = "";
   let values = [];
-  let message = "";
+  let { message, status } = "";
   try {
     if (!name && !author) {
       return res.status(400).send({
         status: "bad",
-        messege: "Please input data you want to update",
+        message: "Please input data you want to update",
       });
     } else if (!name) {
       query = "UPDATE books SET author = ? WHERE id = ?";
@@ -147,13 +153,15 @@ app.put("/book/:id", (req, res) => {
       if (err) {
         message = err;
       } else if (data.affectedRows === 0) {
+        status = "try";
         message = `Fail to update book id ${id} maybe book has not found`;
       } else {
+        status = "good";
         message = `Successfuly to update book id ${id}`;
       }
 
       return res.status(200).send({
-        status: "good",
+        status,
         message,
         data,
       });
@@ -163,3 +171,60 @@ app.put("/book/:id", (req, res) => {
   }
 });
 // Delete book
+app.delete("/book/:id", (req, res) => {
+  const { id } = req.params;
+  try {
+    db.query("DELETE FROM books WHERE id = ?", id, (err, data) => {
+      let { message, status } = "";
+      if (err) {
+        return res.status(500).send({
+          status: "bad",
+          message: err,
+        });
+      }
+      if (data.affectedRows === 0) {
+        status = "try";
+        message = `Fail to delete book id ${id} maybe book has not found`;
+      } else {
+        status = "good";
+        message = `Successfuly delete book id ${id}`;
+      }
+
+      return res.status(200).send({
+        status,
+        message,
+        data,
+      });
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// app.delete("/book", (req, res) => {
+//   let id = req.body.id;
+
+//   if (!id) {
+//     return res.status(400).send({
+//       status: "bad",
+//       message: "Please insert book id to delete",
+//     });
+//   } else {
+//     dbCon.query("DELETE FROM books WHERE id = ?", id, (error, result) => {
+//       if (error) throw error;
+
+//       let message = "";
+//       if (result.affectedRows === 0) {
+//         message = `Book id ${id} not found please try agian`;
+//       } else {
+//         message = "Successfully deleted";
+//       }
+
+//       return res.send({
+//         status: "good",
+//         message,
+//         result,
+//       });
+//     });
+//   }
+// });
